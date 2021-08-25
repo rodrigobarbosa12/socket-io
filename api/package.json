@@ -5,7 +5,7 @@
   "author": "Rodrigo Barbosa",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node-dev --transpile-only --ignore-watch node_modules server.ts"
+    "dev": "ts-node-dev --transpile-only --ignore-watch node_modules server.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

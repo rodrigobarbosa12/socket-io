@@ -1,6 +1,6 @@
 import socketio from 'socket.io-client';
 
-const API = 'http://192.168.1.189:3333';
+const API = 'http://192.168.1.90:3334';
 
 const socket = socketio(API, {
   autoConnect: false,
@@ -11,9 +11,13 @@ const subscribeToNotification = (subscribeFunction: Function) => {
   socket.on('notification', subscribeFunction);
 };
 
-const connect = () => {
+const subscribeWarn = (subscribeFunction: Function) => {
+  socket.on('warn', subscribeFunction);
+};
+
+const connect = (nickName: string) => {
   socket.io.opts.query = {
-    userId: 'Rodrigo Barbosa'
+    nickName
   };
 
   socket.connect();
@@ -29,4 +33,5 @@ export {
   connect,
   disconnect,
   subscribeToNotification,
+  subscribeWarn,
 };

@@ -1,3 +1,3 @@
 import server from './app';
 
-server.listen('3333', () => console.log('[->] servidor rodando!'));
+server.listen('3334', () => console.log('[->] servidor rodando!'));
