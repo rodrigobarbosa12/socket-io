@@ -11,6 +11,10 @@ const subscribeToNotification = (subscribeFunction: (x: any) => void) => {
   socket.on('notification', subscribeFunction);
 };
 
+const showUsersOnline = (subscribeFunction: (x: any) => void) => {
+  socket.on('users-online', subscribeFunction);
+};
+
 const subscribeToAuth = (subscribeFunction: (x: any) => void) => {
   socket.on('auth', subscribeFunction);
 };
@@ -31,6 +35,7 @@ const connect = (nickName: string) => {
 
 const disconnect = () => {
   if (socket.connected) {
+    console.warn('Desconectar');
     socket.disconnect();
   }
 };
@@ -38,6 +43,7 @@ const disconnect = () => {
 export {
   connect,
   disconnect,
+  showUsersOnline,
   subscribeToNotification,
   subscribeToAuth,
   subscribeWarn,

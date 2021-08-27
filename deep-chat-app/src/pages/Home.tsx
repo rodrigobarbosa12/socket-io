@@ -19,9 +19,19 @@ interface Props {
 const Home = ({ navigation }: Props) => {
   const [nickName, setNickName] = useState<string>('');
 
+  const handleLogin = () => {
+    if (!nickName) {
+      Toast.show({ type: 'info', text1: 'Warning', text2: 'Nickname is mandatory' });
+      return;
+    }
+
+    connect(nickName);
+  };
+
   useEffect(() => {
     subscribeToAuth((response: any) => {
       Toast.show({ type: 'success', text1: response.message});
+      setNickName('Opa');
       navigation.reset({ index: 0, routes: [{ name: 'Chat' }] });
     });
 
@@ -62,12 +72,12 @@ const Home = ({ navigation }: Props) => {
                   ml={1}
                   roundedLeft={0}
                   roundedRight="md"
-                  onPress={() => connect(nickName)}>
+                  onPress={handleLogin}>
                   <Text fontSize="lg" >Entrar</Text>
                 </Button>
               }
               onChangeText={(value) => setNickName(value)}
-              placeholder="Nick name"
+              placeholder="Nickname"
             />
           </Box>
         </Container>

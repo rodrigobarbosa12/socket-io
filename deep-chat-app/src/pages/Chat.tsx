@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Stack,
   Input,
@@ -7,35 +7,34 @@ import {
   FlatList,
   Text,
 } from 'native-base';
+import { disconnect, showUsersOnline } from '../services/socket';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
-const Chat = () => {
-  const data = [
-    {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-      title: "First Item",
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-      title: "Second Item",
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
-      title: "Third Item",
-    },
-  ];
+interface Props {
+  navigation: NavigationProp<ParamListBase>
+}
+
+const Chat = ({ navigation }: Props) => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    showUsersOnline((users) => {
+      setUsers(users);
+    });
+  }, []);
 
   return (
     <Stack flex={1} bg="deep.bg" alignItems="center" justifyContent="space-between">
       <FlatList
-        data={data}
+        data={users}
         mt={9}
         mb={1}
         renderItem={({ item }) => (
           <Box px={5} py={2} rounded="md" my={2} bg="primary.300">
-            {item.title}
+            {item.nickName}
           </Box>
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.socketId}
       />
       <Box mb={5}>
         <Input
@@ -47,7 +46,11 @@ const Chat = () => {
               ml={1}
               roundedLeft={0}
               roundedRight="md"
-              onPress={() => console.warn('msg')}>
+              onPress={() => {
+                disconnect();
+                navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+              }}
+            >
               <Text fontSize="lg" >Enviar</Text>
             </Button>
           }
