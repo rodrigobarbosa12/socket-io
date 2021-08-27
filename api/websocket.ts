@@ -6,11 +6,11 @@ interface User {
 /**
  * AS conexões podem ser salvas no banco de dados
  */
-let connectionsUsers: User[] = [];
+let users: User[] = [];
 
 let io: any;
 
-const verifyNickNameInUse = (nickName: string) => connectionsUsers
+const verifyNickNameInUse = (nickName: string) => users
   .filter((connection) => connection.nickName === nickName);
 
 const notifyAllUsers = (to: User[], data: Object) => {
@@ -19,8 +19,12 @@ const notifyAllUsers = (to: User[], data: Object) => {
   });
 };
 
-const sendWarn = (socketId: string, message: string) => {
-  io.to(socketId).emit('warn', { message });
+const sendResponseUser = (
+  socketId: string,
+  status: string,
+  message: string,
+) => {
+  io.to(socketId).emit(status, { message });
 };
 
 const setupWebsocket = (server: any) => {
@@ -31,13 +35,14 @@ const setupWebsocket = (server: any) => {
     const { id: socketId } = socket;
 
     if (verifyNickNameInUse(nickName).length) {
-      sendWarn(socketId, 'Nick name in use');
+      sendResponseUser(socketId, 'warn', 'Nick name in use');
       return;
     }
 
-    connectionsUsers.push({ socketId: socketId, nickName });
+    sendResponseUser(socketId, 'auth', 'Seja bem-vindo');
+    notifyAllUsers(users, { message: `${nickName} entrou online` });
 
-    notifyAllUsers(connectionsUsers, { message: `${nickName} entrou online` });
+    users.push({ socketId: socketId, nickName });
   });
 };
 
