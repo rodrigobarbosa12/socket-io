@@ -15,6 +15,10 @@ const showUsersOnline = (subscribeFunction: (x: any) => void) => {
   socket.on('users-online', subscribeFunction);
 };
 
+const subscribeToChat = (subscribeFunction: (x: any) => void) => {
+  socket.on('chat', subscribeFunction);
+};
+
 const subscribeToAuth = (subscribeFunction: (x: any) => void) => {
   socket.on('auth', subscribeFunction);
 };
@@ -43,6 +47,7 @@ const disconnect = () => {
 export {
   connect,
   disconnect,
+  subscribeToChat,
   showUsersOnline,
   subscribeToNotification,
   subscribeToAuth,

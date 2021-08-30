@@ -5,15 +5,36 @@ interface User {
   nickName: string,
 }
 
+interface Chat {
+  user: User;
+  message: string;
+}
+
 /**
  * AS conexões podem ser salvas no banco de dados
  */
 let users: User[] = [];
 
+/**
+ * Mensagens do chat
+ */
+let cat: Chat[] = [];
+
 let io: Server;
+
+export const setMessageInChat = (message: Chat) => {
+  cat.push(message);
+  showMessagesUsersOnline();
+};
 
 const disconnectUser = (socketId: string) => {
   users = users.filter((connection) => connection.socketId !== socketId);
+};
+
+const showMessagesUsersOnline = () => {
+  users.forEach((connection) => {
+    io.to(connection.socketId).emit('chat', cat);
+  });
 };
 
 const verifyNickNameInUse = (nickName: string) => users
@@ -36,7 +57,7 @@ const sendResponseUser = (
   status: string,
   message: string,
 ) => {
-  io.to(socketId).emit(status, { message });
+  io.to(socketId).emit(status, { message, socketId });
 };
 
 const setupWebsocket = (server: Server) => {
