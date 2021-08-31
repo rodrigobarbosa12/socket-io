@@ -6,7 +6,7 @@ interface User {
 }
 
 interface Chat {
-  user: User;
+  socketId: string;
   message: string;
 }
 
@@ -18,14 +18,10 @@ let users: User[] = [];
 /**
  * Mensagens do chat
  */
-let cat: Chat[] = [];
+let chat: Chat[] = [];
 
 let io: Server;
 
-export const setMessageInChat = (message: Chat) => {
-  cat.push(message);
-  showMessagesUsersOnline();
-};
 
 const disconnectUser = (socketId: string) => {
   users = users.filter((connection) => connection.socketId !== socketId);
@@ -33,8 +29,13 @@ const disconnectUser = (socketId: string) => {
 
 const showMessagesUsersOnline = () => {
   users.forEach((connection) => {
-    io.to(connection.socketId).emit('chat', cat);
+    io.to(connection.socketId).emit('chat', chat);
   });
+};
+
+export const setMessageInChat = (message: Chat) => {
+  chat.push(message);
+  showMessagesUsersOnline();
 };
 
 const verifyNickNameInUse = (nickName: string) => users
@@ -71,7 +72,6 @@ const setupWebsocket = (server: Server) => {
 
     const { nickName } = socket.handshake.query;
     const { id: socketId } = socket;
-    console.log('connection', socketId);
 
     if (verifyNickNameInUse(nickName).length) {
       sendResponseUser(socketId, 'warn', 'Nickname in use');

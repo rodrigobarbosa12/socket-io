@@ -9,18 +9,40 @@ import {
   FlatList,
   Text,
 } from 'native-base';
-import { disconnect, showUsersOnline, subscribeToChat } from '../services/socket';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { showUsersOnline, subscribeToChat } from '../services/socket';
+import { NavigationProp, ParamListBase, RouteProp } from '@react-navigation/native';
 import api from '../services/api';
 
+
+type RootStackParamList = {
+  Chat: { socketId: string };
+};
+
 interface Props {
-  navigation: NavigationProp<ParamListBase>
+  navigation: NavigationProp<ParamListBase>,
+  route: RouteProp<RootStackParamList, 'Chat'>
 }
 
-const Chat = ({ navigation }: Props) => {
+const Chat = ({ navigation, route }: Props) => {
+  const { params } = route;
+  const { socketId } = params;
+
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
+
+  const handlerSendMessage = async () => {
+    try {      
+      if (!message) {
+        return;
+      }
+      
+      await api.sendMessage({ message, socketId });
+      setMessage('');
+    } catch (error) {
+      console.warn(error);
+    }
+  };
 
   useEffect(() => {
     showUsersOnline((users) => {
@@ -64,23 +86,19 @@ const Chat = ({ navigation }: Props) => {
         <FlatList
           data={chat}
           renderItem={({ item }) => (
-            <>
-              <Box alignItems="flex-start">
-                <HStack maxWidth="70%" mb={4}>
-                  <Text fontSize="md" bg="#0284c7" rounded="md" px={3} py={2}>
-                    Sejam todos bem-vindos ao Deep chat
-                  </Text>
-                </HStack>
-              </Box>
-
-              <Box alignItems="flex-end">
-                <HStack maxWidth="70%" mb={4}>
-                  <Text fontSize="md" bg="#0c4a6e" rounded="md" px={3} py={2}>
-                    {item}
-                  </Text>
-                </HStack>
-              </Box>
-          </>
+            <Box alignItems={item.socketId === socketId ? 'flex-end' : 'flex-start'}>
+              <HStack maxWidth="70%" mb={4}>
+                <Text
+                  fontSize="md"
+                  bg={item.socketId === socketId ? '#0c4a6e' : '#0284c7'}
+                  rounded="md"
+                  px={3}
+                  py={2}
+                >
+                  {item.message}
+                </Text>
+              </HStack>
+            </Box>
           )}
           keyExtractor={(item) => item.id}
         />
@@ -91,20 +109,14 @@ const Chat = ({ navigation }: Props) => {
           type="text"
           w="85%"
           size="lg"
+          value={message}
           onChangeText={(value) => setMessage(value)}
           InputRightElement={
             <Button
               ml={1}
               roundedLeft={0}
               roundedRight="md"
-              onPress={() => {
-                api.sendMessage({
-                  message,
-                  socketId: 'asdasadsads',
-                });
-                // disconnect();
-                // navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-              }}
+              onPress={handlerSendMessage}
             >
               <Text fontSize="lg">Enviar</Text>
             </Button>

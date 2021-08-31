@@ -33,9 +33,15 @@ const Home = ({ navigation }: Props) => {
       Toast.show({ type: 'success', text1: response.message});
       setNickName('Opa');
 
-      // Repassar socketId para outra tela
-      console.warn(response.socketId);
-      navigation.reset({ index: 0, routes: [{ name: 'Chat' }] });
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Chat',
+            params: { socketId: response.socketId}
+          }
+        ]
+      });
     });
 
     subscribeToNotification((response: any) => {
