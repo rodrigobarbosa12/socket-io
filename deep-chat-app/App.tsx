@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { NativeBaseProvider, extendTheme } from 'native-base';
 import Toast from 'react-native-toast-message';
 import Router from './src/Router';
@@ -6,7 +6,7 @@ import Router from './src/Router';
 const theme = extendTheme({
   colors: {
     deep: {
-      bg: '#1f2937'
+      bg: '#1f2937',
     },
     primary: {
       50: '#E3F2F9',
@@ -22,12 +22,11 @@ const theme = extendTheme({
     },
   },
   config: {
-    // Changing initialColorMode to 'dark'
     initialColorMode: 'dark',
   },
 });
 
-const App = () => (
+const App = (): ReactElement => (
   <>
     <NativeBaseProvider theme={theme}>
       <Router />

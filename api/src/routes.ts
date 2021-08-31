@@ -3,16 +3,15 @@ import { setMessageInChat } from './websocket';
 
 const routes = Router();
 
-routes.post('/send-message', async (req: Request, res: Response) => {
+routes.post('/send-message', async (req: Request, res: Response): Promise<Response> => {
+  try {
     const { message, socketId } = req.body;
-  
-    try {
-        console.log(message);
-        setMessageInChat({ message, socketId });
-        return res.send();
-    } catch (error) {
-      return res.status(400).send(error);
-    }
-  });
+
+    setMessageInChat({ message, socketId });
+    return res.send();
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+});
 
 export default routes;

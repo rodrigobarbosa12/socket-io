@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './pages/Home';
@@ -6,7 +6,7 @@ import Chat from './pages/Chat';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
-const App = () => (
+const App = (): ReactElement => (
   <NavigationContainer>
     <Navigator initialRouteName="Home">
       <Screen

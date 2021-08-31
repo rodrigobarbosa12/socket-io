@@ -1,89 +1,89 @@
-import { Server } from 'socket.io';
-
-interface User {
-  socketId: string,
-  nickName: string,
-}
-
-interface Chat {
-  socketId: string;
-  message: string;
-}
-
-/**
- * AS conexões podem ser salvas no banco de dados
- */
-let users: User[] = [];
-
-/**
- * Mensagens do chat
- */
-let chat: Chat[] = [];
+import { Server, Socket } from 'socket.io';
+import {
+  User,
+  Chat,
+  GenericObject,
+  Response,
+} from './@types/type';
 
 let io: Server;
 
+let users: User[] = [];
 
-const disconnectUser = (socketId: string) => {
+const chat: Chat[] = [];
+
+const disconnectUser = (socketId: string): void => {
   users = users.filter((connection) => connection.socketId !== socketId);
 };
 
-const showMessagesUsersOnline = () => {
+const sendMessagesForUsersOnline = (): void => {
   users.forEach((connection) => {
     io.to(connection.socketId).emit('chat', chat);
   });
 };
 
-export const setMessageInChat = (message: Chat) => {
+export const setMessageInChat = (message: Chat): void => {
   chat.push(message);
-  showMessagesUsersOnline();
+  sendMessagesForUsersOnline();
 };
 
-const verifyNickNameInUse = (nickName: string) => users
+const verifyNicknameInUse = (nickName: string): User[] => users
   .filter((connection) => connection.nickName === nickName);
 
-const notifyAllUsers = (to: User[], data: Object) => {
+const notifyUsersOnline = (to: User[], data: GenericObject): void => {
   to.forEach((connection) => {
     io.to(connection.socketId).emit('notification', data);
   });
 };
 
-const showUsersOnline = () => {
+const showUsersOnline = (): void => {
   users.forEach((connection) => {
     io.to(connection.socketId).emit('users-online', users);
   });
 };
 
-const sendResponseUser = (
-  socketId: string,
-  status: string,
-  message: string,
-) => {
+const sendResponseUser = ({ socketId, status, message }: Response): void => {
   io.to(socketId).emit(status, { message, socketId });
 };
 
-const setupWebsocket = (server: Server) => {
+const startWebsocket = (server: Server): void => {
   io = server;
-  
-  io.sockets.on('connection', (socket: any) => {
+
+  io.sockets.on('connection', (socket: Socket) => {
     socket.on('disconnect', () => {
       disconnectUser(socket.id);
       showUsersOnline();
     });
 
-    const { nickName } = socket.handshake.query;
+    let { nickName } = socket.handshake.query;
     const { id: socketId } = socket;
 
-    if (verifyNickNameInUse(nickName).length) {
-      sendResponseUser(socketId, 'warn', 'Nickname in use');
+    if (!nickName) {
+      sendResponseUser({
+        socketId,
+        status: 'warn',
+        message: 'Nickname is mandatory',
+      });
       return;
     }
 
-    sendResponseUser(socketId, 'auth', 'Seja bem-vindo');
-    notifyAllUsers(users, { message: `${nickName} entrou online` });
+    nickName = typeof nickName === 'object' ? nickName[0] : nickName;
 
-    users.push({ socketId: socketId, nickName });
+    if (verifyNicknameInUse(nickName).length) {
+      sendResponseUser({
+        socketId,
+        status: 'warn',
+        message: 'Nickname in use',
+      });
+      return;
+    }
+
+    sendResponseUser({ socketId, status: 'auth', message: 'Seja bem-vindo' });
+    notifyUsersOnline(users, { message: `${nickName} is online` });
+
+    users.push({ socketId, nickName });
     showUsersOnline();
   });
 };
 
-export default setupWebsocket;
+export default startWebsocket;

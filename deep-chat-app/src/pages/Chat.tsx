@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
 import { Platform } from 'react-native';
 import {
   Stack,
@@ -9,10 +9,19 @@ import {
   FlatList,
   Text,
 } from 'native-base';
-import { showUsersOnline, subscribeToChat } from '../services/socket';
 import { NavigationProp, ParamListBase, RouteProp } from '@react-navigation/native';
+import { showUsersOnline, subscribeToChat } from '../services/socket';
 import api from '../services/api';
 
+interface ChatType {
+  message: string;
+  socketId: string;
+}
+
+interface User {
+  nickName: string;
+  socketId: string;
+}
 
 type RootStackParamList = {
   Chat: { socketId: string };
@@ -23,20 +32,20 @@ interface Props {
   route: RouteProp<RootStackParamList, 'Chat'>
 }
 
-const Chat = ({ navigation, route }: Props) => {
+const Chat = ({ navigation, route }: Props): ReactElement => {
   const { params } = route;
   const { socketId } = params;
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState('');
-  const [chat, setChat] = useState([]);
+  const [chat, setChat] = useState<ChatType[]>([]);
 
   const handlerSendMessage = async () => {
-    try {      
+    try {
       if (!message) {
         return;
       }
-      
+
       await api.sendMessage({ message, socketId });
       setMessage('');
     } catch (error) {
@@ -45,12 +54,12 @@ const Chat = ({ navigation, route }: Props) => {
   };
 
   useEffect(() => {
-    showUsersOnline((users) => {
-      setUsers(users);
+    showUsersOnline((data: User[]) => {
+      setUsers(data);
     });
 
-    subscribeToChat((response: any) => {
-      setChat(response);
+    subscribeToChat((data: ChatType[]) => {
+      setChat(data);
     });
   }, []);
 
@@ -67,7 +76,8 @@ const Chat = ({ navigation, route }: Props) => {
               px={10}
               py={2}
               rounded="md"
-              my={2} bg="primary.300"
+              my={2}
+              bg="primary.300"
               ml={2}
             >
               {item.nickName}
@@ -79,7 +89,7 @@ const Chat = ({ navigation, route }: Props) => {
 
       <Box
         mb={5}
-        flex={Platform.OS === 'ios' ? 5 :  7}
+        flex={Platform.OS === 'ios' ? 5 : 7}
         width="100%"
         px={4}
       >
@@ -111,7 +121,7 @@ const Chat = ({ navigation, route }: Props) => {
           size="lg"
           value={message}
           onChangeText={(value) => setMessage(value)}
-          InputRightElement={
+          InputRightElement={(
             <Button
               ml={1}
               roundedLeft={0}
@@ -120,7 +130,7 @@ const Chat = ({ navigation, route }: Props) => {
             >
               <Text fontSize="lg">Enviar</Text>
             </Button>
-          }
+          )}
           placeholder="Digite uma mensagem"
         />
       </Box>

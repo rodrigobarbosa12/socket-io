@@ -1,47 +1,37 @@
-import socketio from 'socket.io-client';
+import socketio, { Socket } from 'socket.io-client';
+import { API } from './xhr';
 
-const API = 'http://192.168.1.90:3334';
+const socket = socketio(API, { autoConnect: false });
 
-const socket = socketio(API, {
-  autoConnect: false,
-  // path: '/'
-});
+const subscribeToNotification = (subscribeFunction: (x: any) => void): Socket => socket
+  .on('notification', subscribeFunction);
 
-const subscribeToNotification = (subscribeFunction: (x: any) => void) => {
-  socket.on('notification', subscribeFunction);
+const showUsersOnline = (subscribeFunction: (x: any) => void): Socket => socket
+  .on('users-online', subscribeFunction);
+
+const subscribeToChat = (subscribeFunction: (x: any) => void): Socket => socket
+  .on('chat', subscribeFunction);
+
+const subscribeToAuth = (subscribeFunction: (x: any) => void): Socket => socket
+  .on('auth', subscribeFunction);
+
+const subscribeWarn = (subscribeFunction: (x: any) => void): Socket => socket
+  .on('warn', subscribeFunction);
+
+const disconnect = (): void => {
+  if (socket.connected) {
+    socket.disconnect();
+  }
 };
 
-const showUsersOnline = (subscribeFunction: (x: any) => void) => {
-  socket.on('users-online', subscribeFunction);
-};
-
-const subscribeToChat = (subscribeFunction: (x: any) => void) => {
-  socket.on('chat', subscribeFunction);
-};
-
-const subscribeToAuth = (subscribeFunction: (x: any) => void) => {
-  socket.on('auth', subscribeFunction);
-};
-
-const subscribeWarn = (subscribeFunction: (x: any) => void) => {
-  socket.on('warn', subscribeFunction);
-};
-
-const connect = (nickName: string) => {
+const connect = (nickName: string): void => {
   disconnect();
 
   socket.io.opts.query = {
-    nickName
+    nickName,
   };
 
   socket.connect();
-};
-
-const disconnect = () => {
-  if (socket.connected) {
-    console.warn('Desconectar');
-    socket.disconnect();
-  }
 };
 
 export {
