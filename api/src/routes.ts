@@ -6,12 +6,13 @@ const routes = Router();
 
 routes.post('/send-message', async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { message, socketId } = req.body;
+    const { message, socketId, nickname } = req.body;
 
     setMessageInChat({
       message,
       socketId,
-      id: moment().format('YYYY-mm-dd H:mm:ss'),
+      nickname,
+      hour: moment().format('YYYY-MM-DD H:mm:ss'),
     });
     return res.send();
   } catch (error) {

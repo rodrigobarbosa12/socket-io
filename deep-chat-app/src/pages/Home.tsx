@@ -19,6 +19,7 @@ import {
 
 interface ResponseUser {
   message: string;
+  nickname: string;
   socketId: string;
 }
 
@@ -31,10 +32,10 @@ interface Props {
 }
 
 const Home = ({ navigation }: Props): ReactElement => {
-  const [nickName, setNickName] = useState<string>('');
+  const [nickname, setNickname] = useState<string>('');
 
   const handleLogin = () => {
-    if (!nickName) {
+    if (!nickname) {
       Toast.show({
         type: 'info',
         text1: 'Warning',
@@ -43,23 +44,24 @@ const Home = ({ navigation }: Props): ReactElement => {
       return;
     }
 
-    connect(nickName);
+    connect(nickname);
   };
 
   useEffect(() => {
     subscribeToAuth((data: ResponseUser) => {
       Toast.show({ type: 'success', text1: data.message });
-      setNickName('Opa');
 
       navigation.reset({
         index: 0,
         routes: [
           {
             name: 'Chat',
-            params: { socketId: data.socketId },
+            params: { socketId: data.socketId, nickname: data.nickname },
           },
         ],
       });
+
+      setNickname('');
     });
 
     subscribeToNotification((data: Subscribe) => {
@@ -92,6 +94,8 @@ const Home = ({ navigation }: Props): ReactElement => {
           <Box mt={10}>
             <Input
               type="text"
+              autoCapitalize="none"
+              autoCorrect={false}
               w="85%"
               size="lg"
               InputRightElement={(
@@ -104,7 +108,7 @@ const Home = ({ navigation }: Props): ReactElement => {
                   <Text fontSize="lg">Entrar</Text>
                 </Button>
               )}
-              onChangeText={(value) => setNickName(value)}
+              onChangeText={(value) => setNickname(value)}
               placeholder="Nickname"
             />
           </Box>

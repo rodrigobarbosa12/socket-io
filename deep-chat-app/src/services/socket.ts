@@ -24,11 +24,11 @@ const disconnect = (): void => {
   }
 };
 
-const connect = (nickName: string): void => {
+const connect = (nickname: string): void => {
   disconnect();
 
   socket.io.opts.query = {
-    nickName,
+    nickname,
   };
 
   socket.connect();

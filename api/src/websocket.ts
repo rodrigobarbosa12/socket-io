@@ -28,7 +28,7 @@ export const setMessageInChat = (message: Chat): void => {
 };
 
 const verifyNicknameInUse = (nickName: string): User[] => users
-  .filter((connection) => connection.nickName === nickName);
+  .filter((connection) => connection.nickname === nickName);
 
 const notifyUsersOnline = (to: User[], data: GenericObject): void => {
   to.forEach((connection) => {
@@ -42,8 +42,13 @@ const showUsersOnline = (): void => {
   });
 };
 
-const sendResponseUser = ({ socketId, status, message }: Response): void => {
-  io.to(socketId).emit(status, { message, socketId });
+const sendResponseUser = ({
+  socketId,
+  status,
+  nickname,
+  message,
+}: Response): void => {
+  io.to(socketId).emit(status, { message, nickname, socketId });
 };
 
 const startWebsocket = (server: Server): void => {
@@ -59,10 +64,10 @@ const startWebsocket = (server: Server): void => {
       }
     });
 
-    let { nickName } = socket.handshake.query;
+    let { nickname } = socket.handshake.query;
     const { id: socketId } = socket;
 
-    if (!nickName) {
+    if (!nickname) {
       sendResponseUser({
         socketId,
         status: 'warn',
@@ -71,9 +76,9 @@ const startWebsocket = (server: Server): void => {
       return;
     }
 
-    nickName = typeof nickName === 'object' ? nickName[0] : nickName;
+    nickname = typeof nickname === 'object' ? nickname[0] : nickname;
 
-    if (verifyNicknameInUse(nickName).length) {
+    if (verifyNicknameInUse(nickname).length) {
       sendResponseUser({
         socketId,
         status: 'warn',
@@ -82,10 +87,15 @@ const startWebsocket = (server: Server): void => {
       return;
     }
 
-    sendResponseUser({ socketId, status: 'auth', message: 'Seja bem-vindo' });
-    notifyUsersOnline(users, { message: `${nickName} is online` });
+    sendResponseUser({
+      socketId,
+      status: 'auth',
+      nickname,
+      message: 'Seja bem-vindo',
+    });
+    notifyUsersOnline(users, { message: `${nickname} is online` });
 
-    users.push({ socketId, nickName });
+    users.push({ socketId, nickname });
     showUsersOnline();
     sendMessagesForUsersOnline();
   });

@@ -6,15 +6,17 @@ export interface Response {
   socketId: string;
   status: string;
   message: string;
+  nickname?: string;
 }
 
 export interface User {
   socketId: string,
-  nickName: string,
+  nickname: string,
 }
 
 export interface Chat {
-  id: string;
+  hour: string;
   socketId: string;
   message: string;
+  nickname: string;
 }
