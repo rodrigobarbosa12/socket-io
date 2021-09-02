@@ -5,18 +5,20 @@ import React, {
   ReactElement,
   MutableRefObject,
 } from 'react';
+import { Platform } from 'react-native';
 import {
-  Stack,
   Input,
   Box,
   HStack,
   Button,
   FlatList,
+  KeyboardAvoidingView,
   Text,
   Icon,
 } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NavigationProp, ParamListBase, RouteProp } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 import AppBar from '../Components/AppBar';
 import AvatarOnline from '../Components/Avatar';
 import { showUsersOnline, subscribeToChat, disconnect } from '../services/socket';
@@ -64,7 +66,7 @@ const Chat = ({ navigation, route }: Props): ReactElement => {
       scrollToEnd();
       setMessage('');
     } catch (error) {
-      console.warn(error);
+      Toast.show({ type: 'error', text1: 'Error sending message' });
     }
   };
 
@@ -90,7 +92,17 @@ const Chat = ({ navigation, route }: Props): ReactElement => {
           });
         }}
       />
-      <Stack flex={1} bg="deep.bg" alignItems="center" justifyContent="space-between">
+      <KeyboardAvoidingView
+        h={{
+          base: '600px',
+          lg: 'auto',
+        }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        flex={1}
+        bg="deep.bg"
+        alignItems="center"
+        justifyContent="space-between"
+      >
         <Box mb={5} width="100%">
           <FlatList
             data={users}
@@ -107,7 +119,6 @@ const Chat = ({ navigation, route }: Props): ReactElement => {
             keyExtractor={(item) => `users-${item.socketId}`}
           />
         </Box>
-
         <Box
           mb={5}
           flex={7}
@@ -136,7 +147,6 @@ const Chat = ({ navigation, route }: Props): ReactElement => {
             keyExtractor={(item) => item.id}
           />
         </Box>
-
         <Box mb={5}>
           <Input
             type="text"
@@ -157,7 +167,7 @@ const Chat = ({ navigation, route }: Props): ReactElement => {
             placeholder="Digite uma mensagem"
           />
         </Box>
-      </Stack>
+      </KeyboardAvoidingView>
     </>
   );
 };
