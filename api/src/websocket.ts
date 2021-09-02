@@ -10,7 +10,7 @@ let io: Server;
 
 let users: User[] = [];
 
-const chat: Chat[] = [];
+let chat: Chat[] = [];
 
 const disconnectUser = (socketId: string): void => {
   users = users.filter((connection) => connection.socketId !== socketId);
@@ -53,6 +53,10 @@ const startWebsocket = (server: Server): void => {
     socket.on('disconnect', () => {
       disconnectUser(socket.id);
       showUsersOnline();
+
+      if (!users.length) {
+        chat = [];
+      }
     });
 
     let { nickName } = socket.handshake.query;
@@ -83,6 +87,7 @@ const startWebsocket = (server: Server): void => {
 
     users.push({ socketId, nickName });
     showUsersOnline();
+    sendMessagesForUsersOnline();
   });
 };
 

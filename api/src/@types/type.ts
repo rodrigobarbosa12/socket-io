@@ -14,6 +14,7 @@ export interface User {
 }
 
 export interface Chat {
+  id: string;
   socketId: string;
   message: string;
 }
